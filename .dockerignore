@@ -1,0 +1,8 @@
+env/
+env_anaconda_backup/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+.env
+.DS_Store
+.git/

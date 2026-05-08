@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: askmydocs
+      POSTGRES_USER: askmydocs
+      POSTGRES_PASSWORD: askmydocs
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_DB_NAME: askmydocs
+      POSTGRES_DB_HOST: postgres
+      POSTGRES_DB_PORT: 5432
+      POSTGRES_DB_USER: askmydocs
+      POSTGRES_DB_PASSWORD: askmydocs
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      TOKEN_SECRET_KEY: ${TOKEN_SECRET_KEY:-dev-compose-secret}
+      LLM_INPUT_PRICE_PER_1M_TOKENS: ${LLM_INPUT_PRICE_PER_1M_TOKENS:-0}
+      LLM_OUTPUT_PRICE_PER_1M_TOKENS: ${LLM_OUTPUT_PRICE_PER_1M_TOKENS:-0}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    environment:
+      ASKMYDOCS_API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+
+volumes:
+  postgres-data:
