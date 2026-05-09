@@ -6,7 +6,7 @@ The project demonstrates a production-style RAG workflow rather than a notebook 
 
 ## Live Demo
 
-- Streamlit app: (still needed from Streamlit Cloud)
+- Streamlit app: https://askmydocs-lzuugs7svivffynzr6uhfv.streamlit.app/
 - API docs: https://askmydocs-production-ed37.up.railway.app/docs
 - API health: https://askmydocs-production-ed37.up.railway.app/health
 
@@ -86,8 +86,10 @@ docker compose up --build
 Open:
 
 - Streamlit UI: http://localhost:8501
-- Swagger API docs: http://127.0.0.1:8000/docs
+- FastAPI docs: http://127.0.0.1:8000/docs
+- API health check: http://127.0.0.1:8000/health
 - Postgres: localhost:5433
+
 
 ## API Demo Flow
 
@@ -126,13 +128,11 @@ Required backend environment variables:
 - `LLM_OUTPUT_PRICE_PER_1M_TOKENS`
 
 After deployment:
-
-- Backend health check: `https://<api-domain>/health`
-- Backend API docs: `https://<api-domain>/docs`
-- Frontend app: `https://<streamlit-domain>`
+- Backend health check: `https://askmydocs-production-ed37.up.railway.app/health`
+- Backend API docs: `https://askmydocs-production-ed37.up.railway.app/docs`
+- Frontend app: `https://askmydocs-lzuugs7svivffynzr6uhfv.streamlit.app`
 
 Required frontend environment variable:
-
-- `ASKMYDOCS_API_URL="https://<api-domain>"`
+- `ASKMYDOCS_API_URL="https://askmydocs-production-ed37.up.railway.app"`
 
 The backend creates the `vector` extension with `CREATE EXTENSION IF NOT EXISTS vector`. If the selected Railway Postgres image does not support pgvector, use a pgvector-capable Postgres provider such as Neon or Supabase for the database URL.
