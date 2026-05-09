@@ -9,8 +9,8 @@ RUN apt-get update \
         libpoppler-cpp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.backend.txt .
+RUN pip install --no-cache-dir -r requirements.backend.txt
 
 COPY . .
 

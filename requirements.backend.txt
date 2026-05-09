@@ -1,0 +1,10 @@
+anyio==4.6.0
+fastapi
+python-multipart
+uvicorn
+pdftotext==2.2.2
+peewee==3.17.6
+pgvector==0.3.4
+python-dotenv==1.0.1
+psycopg2-binary==2.9.10
+groq
