@@ -9,7 +9,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from db import Users, initialize_database
+from backend.db import Users, initialize_database
 
 
 TOKEN_SECRET_KEY = os.getenv("TOKEN_SECRET_KEY", "dev-only-change-this-secret")

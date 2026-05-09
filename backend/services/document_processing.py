@@ -8,12 +8,12 @@ import pdftotext
 from anyio import sleep
 from pydantic import BaseModel
 
-from constants import CREATE_FACT_CHUNKS_SYSTEM_PROMPT, GET_MATCHING_TAGS_SYSTEM_PROMPT
-from cost_tracking import record_llm_usage
-from db import DocumentInformationChunks, DocumentTags, Documents, Tags, db
-from embeddings import get_embedding
-from openai_client import openai_client
-from utils import find
+from backend.services.constants import CREATE_FACT_CHUNKS_SYSTEM_PROMPT, GET_MATCHING_TAGS_SYSTEM_PROMPT
+from backend.services.cost_tracking import record_llm_usage
+from backend.db import DocumentInformationChunks, DocumentTags, Documents, Tags, db
+from backend.services.embeddings import get_embedding
+from backend.services.openai_client import openai_client
+from backend.services.utils import find
 
 
 IDEAL_CHUNK_LENGTH = 4000

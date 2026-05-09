@@ -1,7 +1,7 @@
 import streamlit as st
 
-from api_client import ApiClientError, delete, get, post
-from auth import require_login
+from frontend.api_client import ApiClientError, delete, get, post
+from frontend.auth import require_login
 
 
 require_login()

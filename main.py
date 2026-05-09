@@ -1,5 +1,5 @@
 import streamlit as st
-from auth import get_current_user, render_login_page, render_sidebar_user
+from frontend.auth import get_current_user, render_login_page, render_sidebar_user
 
 st.set_page_config(page_title="AskMyDocs")
 

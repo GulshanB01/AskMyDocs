@@ -2,8 +2,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Optional
 
-from db import DocumentProcessingJobs, db
-from document_processing import upload_document_sync
+from backend.db import DocumentProcessingJobs, db
+from backend.services.document_processing import upload_document_sync
 
 
 _executor = ThreadPoolExecutor(max_workers=2)

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from backend.schemas import TagRequest, TagResponse
 from backend.security import get_current_api_user
-from db import Tags, Users
+from backend.db import Tags, Users
 
 
 router = APIRouter(prefix="/tags", tags=["Tags"])

@@ -1,6 +1,6 @@
 from datetime import date
 
-from db import QuestionUsage, db
+from backend.db import QuestionUsage, db
 
 
 DAILY_QUESTION_LIMIT = 50

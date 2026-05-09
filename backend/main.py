@@ -22,7 +22,7 @@ def health_check():
 
 @app.on_event("startup")
 def start_database_initialization():
-    from db import initialize_database
+    from backend.db import initialize_database
 
     Thread(target=initialize_database, daemon=True).start()
 

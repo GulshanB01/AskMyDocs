@@ -9,7 +9,7 @@ from backend.security import (
     hash_password,
     normalize_email,
 )
-from db import Users, initialize_database
+from backend.db import Users, initialize_database
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

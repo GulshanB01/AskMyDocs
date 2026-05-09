@@ -1,7 +1,7 @@
 import os
 from typing import Any, Optional
 
-from db import ApiUsage
+from backend.db import ApiUsage
 
 
 def _float_from_env(name: str, default: float = 0.0) -> float:

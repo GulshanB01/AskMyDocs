@@ -2,8 +2,8 @@ import time
 
 import streamlit as st
 
-from api_client import ApiClientError, delete, get, upload
-from auth import require_login
+from frontend.api_client import ApiClientError, delete, get, upload
+from frontend.auth import require_login
 
 
 st.title("Manage Documents")

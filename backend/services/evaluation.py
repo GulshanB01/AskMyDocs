@@ -4,8 +4,8 @@ from typing import Literal, TypedDict
 
 from anyio import sleep
 
-from cost_tracking import record_llm_usage
-from openai_client import openai_client
+from backend.services.cost_tracking import record_llm_usage
+from backend.services.openai_client import openai_client
 
 
 class GroundednessResult(TypedDict):

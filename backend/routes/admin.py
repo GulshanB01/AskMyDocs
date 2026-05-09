@@ -5,8 +5,8 @@ from peewee import fn
 
 from backend.schemas import MonitoringOverviewResponse
 from backend.security import get_current_api_user
-from cost_tracking import INPUT_PRICE_PER_1M_TOKENS, OUTPUT_PRICE_PER_1M_TOKENS
-from db import ApiUsage, ChatMessages, DocumentProcessingJobs, Documents, QuestionUsage, Users, db
+from backend.services.cost_tracking import INPUT_PRICE_PER_1M_TOKENS, OUTPUT_PRICE_PER_1M_TOKENS
+from backend.db import ApiUsage, ChatMessages, DocumentProcessingJobs, Documents, QuestionUsage, Users, db
 
 
 router = APIRouter(prefix="/admin", tags=["Admin"])

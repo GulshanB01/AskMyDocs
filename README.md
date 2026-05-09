@@ -1,6 +1,58 @@
 # AskMyDocs
 
-AskMyDocs is a multi-user RAG application for asking questions over private PDF documents. It includes async document processing, per-user data isolation, hallucination-risk scoring, rate limiting, monitoring, and a FastAPI backend with interactive Swagger docs.
+AskMyDocs turns a pile of private PDFs into a searchable, accountable Q&A workspace. It is built for the common “I know this is somewhere in the docs” problem: upload documents, ask questions in plain English, and get answers grounded in retrieved source chunks with hallucination-risk scoring.
+
+The project demonstrates a production-style RAG workflow rather than a notebook demo: multi-user auth, per-user document isolation, background PDF ingestion, vector search with `pgvector`, cost tracking, rate limits, admin monitoring, and separate FastAPI/Streamlit deploy paths.
+
+## Live Demo
+
+- Streamlit app: (still needed from Streamlit Cloud)
+- API docs: https://askmydocs-production-ed37.up.railway.app/docs
+- API health: https://askmydocs-production-ed37.up.railway.app/health
+
+## What It Shows
+
+- End-to-end PDF ingestion: parse uploads, generate document facts, embed chunks, and store them in Postgres.
+- Retrieval-augmented chat: retrieve relevant chunks with vector search before generating an answer.
+- Trust signals: score groundedness and label hallucination risk for each answer.
+- Product readiness: authentication, async processing jobs, usage quotas, cost monitoring, and admin metrics.
+- Deployability: Dockerized FastAPI backend, Streamlit frontend, Railway/Postgres deployment notes, and healthchecks.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U["Streamlit UI"] --> A["FastAPI Backend"]
+    A --> Auth["Auth + User Isolation"]
+    A --> DB["Postgres + pgvector"]
+    A --> Q["Background Processing Queue"]
+    Q --> PDF["PDF Parsing + Fact Extraction"]
+    PDF --> E["Embeddings"]
+    A --> R["Vector Retrieval"]
+    R --> L["LLM Answering"]
+    L --> G["Groundedness Evaluation"]
+    A --> M["Monitoring + Cost Tracking"]
+```
+
+## Repository Layout
+
+```text
+AskMyDocs/
+├── backend/
+│   ├── main.py                 # FastAPI app and healthcheck
+│   ├── db.py                   # Peewee models and database initialization
+│   ├── routes/                 # API routers
+│   └── services/               # RAG, ingestion, rate-limit, cost, LLM helpers
+├── frontend/
+│   ├── api_client.py           # Streamlit API client
+│   └── auth.py                 # Streamlit auth/session helpers
+├── app_pages/                  # Streamlit pages
+├── main.py                     # Streamlit entrypoint
+├── Dockerfile                  # FastAPI backend image
+├── Dockerfile.streamlit        # Streamlit frontend image
+├── docker-compose.yml          # Local full-stack runtime
+└── railway.json                # Railway backend deployment config
+```
 
 ## Local Apps
 
@@ -49,18 +101,7 @@ Open:
    - `POST /chat/ask`
    - `GET /admin/monitoring`
 
-## Architecture
-
-```mermaid
-flowchart LR
-    U["Streamlit UI"] --> A["FastAPI Backend"]
-    A --> DB["Postgres + pgvector"]
-    A --> Q["Background Processing Queue"]
-    Q --> L["LLM + Embeddings"]
-    A --> M["Monitoring + Cost Tracking"]
-```
-
-## Production-Grade Features
+## Production Features
 
 - Login and user-owned documents/history
 - Background PDF ingestion with progress tracking
@@ -71,35 +112,27 @@ flowchart LR
 - Admin monitoring dashboard
 - Swagger docs for technical API review
 
-## Railway Backend Deployment
+## Deployment
 
-Deploy the FastAPI backend and Postgres database on Railway:
+The backend is Dockerized and configured for Railway with `railway.json`. The Streamlit frontend can be deployed separately and pointed at the backend API.
 
-1. Create a new Railway project.
-2. Add a PostgreSQL database service.
-3. Add this GitHub repository as a Railway service.
-4. Railway will use `railway.json` and `Dockerfile`.
-5. Set backend environment variables:
-   - `DATABASE_URL` from the Railway Postgres service
-   - `GROQ_API_KEY`
-   - `TOKEN_SECRET_KEY`
-   - `ACCESS_TOKEN_EXPIRE_MINUTES=1440`
-   - `LLM_INPUT_PRICE_PER_1M_TOKENS`
-   - `LLM_OUTPUT_PRICE_PER_1M_TOKENS`
-6. After deploy, verify:
-   - `https://<your-railway-api>.up.railway.app/health`
-   - `https://<your-railway-api>.up.railway.app/docs`
+Required backend environment variables:
+
+- `DATABASE_URL`
+- `GROQ_API_KEY`
+- `TOKEN_SECRET_KEY`
+- `ACCESS_TOKEN_EXPIRE_MINUTES=1440`
+- `LLM_INPUT_PRICE_PER_1M_TOKENS`
+- `LLM_OUTPUT_PRICE_PER_1M_TOKENS`
+
+After deployment:
+
+- Backend health check: `https://<api-domain>/health`
+- Backend API docs: `https://<api-domain>/docs`
+- Frontend app: `https://<streamlit-domain>`
+
+Required frontend environment variable:
+
+- `ASKMYDOCS_API_URL="https://<api-domain>"`
 
 The backend creates the `vector` extension with `CREATE EXTENSION IF NOT EXISTS vector`. If the selected Railway Postgres image does not support pgvector, use a pgvector-capable Postgres provider such as Neon or Supabase for the database URL.
-
-## Streamlit Cloud Frontend Deployment
-
-Deploy the Streamlit frontend on Streamlit Cloud:
-
-1. Create a new Streamlit Cloud app from this repository.
-2. Set the app entrypoint to `main.py`.
-3. Add Streamlit secrets or environment variables:
-   - `ASKMYDOCS_API_URL="https://<your-railway-api>.up.railway.app"`
-4. Deploy and open the Streamlit URL.
-
-The Streamlit app now calls the FastAPI backend for auth, documents, tags, chat, jobs, and admin monitoring. It does not need direct Postgres credentials.

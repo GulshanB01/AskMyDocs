@@ -8,13 +8,13 @@ from peewee import SQL
 
 from backend.schemas import ChatAskRequest, ChatAskResponse, ChatMessageResponse, QuestionQuotaResponse
 from backend.security import get_current_api_user
-from constants import RESPOND_TO_MESSAGE_SYSTEM_PROMPT
-from cost_tracking import record_llm_usage
-from db import ChatMessages, DocumentInformationChunks, Documents, Users
-from embeddings import get_embedding
-from evaluation import evaluate_groundedness
-from openai_client import openai_client
-from rate_limit import DAILY_QUESTION_LIMIT, get_remaining_questions, increment_question_count
+from backend.services.constants import RESPOND_TO_MESSAGE_SYSTEM_PROMPT
+from backend.services.cost_tracking import record_llm_usage
+from backend.db import ChatMessages, DocumentInformationChunks, Documents, Users
+from backend.services.embeddings import get_embedding
+from backend.services.evaluation import evaluate_groundedness
+from backend.services.openai_client import openai_client
+from backend.services.rate_limit import DAILY_QUESTION_LIMIT, get_remaining_questions, increment_question_count
 
 
 router = APIRouter(prefix="/chat", tags=["Chat"])

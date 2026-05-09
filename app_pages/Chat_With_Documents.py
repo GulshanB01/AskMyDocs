@@ -1,7 +1,7 @@
 import streamlit as st
 
-from api_client import ApiClientError, get, post
-from auth import require_login
+from frontend.api_client import ApiClientError, get, post
+from frontend.auth import require_login
 
 
 st.title("Chat With Documents")

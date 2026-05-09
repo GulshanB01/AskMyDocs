@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from backend.schemas import JobResponse
 from backend.security import get_current_api_user
-from db import DocumentProcessingJobs, Users
+from backend.db import DocumentProcessingJobs, Users
 
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])

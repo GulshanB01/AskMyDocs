@@ -3,7 +3,7 @@ from typing import Optional
 
 import streamlit as st
 
-from api_client import ApiClientError, get, post
+from frontend.api_client import ApiClientError, get, post
 
 
 def _user_from_payload(payload: dict) -> SimpleNamespace:

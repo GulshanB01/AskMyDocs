@@ -2,10 +2,10 @@ from typing import List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
-from background_queue import enqueue_document_processing
+from backend.services.background_queue import enqueue_document_processing
 from backend.schemas import DocumentResponse, DocumentUploadResponse
 from backend.security import get_current_api_user
-from db import DocumentTags, Documents, Tags, Users
+from backend.db import DocumentTags, Documents, Tags, Users
 
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
