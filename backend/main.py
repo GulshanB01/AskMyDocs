@@ -24,15 +24,21 @@ def health_check():
 
 @app.get("/debug/database", tags=["System"])
 def database_debug():
-    from backend.db import db
+    from backend.db import configure_database, db
 
     database_url = getenv("DATABASE_URL", "")
     parsed_database_url = urlparse(database_url) if database_url else None
+    configuration_error = None
+    try:
+        configure_database()
+    except Exception as exc:
+        configuration_error = f"{type(exc).__name__}: {exc}"
 
     return {
         "database_class": type(db).__name__,
         "is_closed": db.is_closed(),
         "database_name": db.database,
+        "configuration_error": configuration_error,
         "has_database_url": bool(getenv("DATABASE_URL")),
         "database_url_looks_valid": "://" in getenv("DATABASE_URL", ""),
         "database_url_has_name": bool(parsed_database_url and parsed_database_url.path.strip("/")),

@@ -21,12 +21,18 @@ load_dotenv()  # add this before anything else
 _database_initialized = False
 _database_lock = Lock()
 _vector_initialized = False
+db = PostgresqlDatabase(None)
 
-database_url = getenv("DATABASE_URL")
+def configure_database():
+   if not db.is_closed() or db.database:
+      return
 
-if database_url and "://" in database_url and urlparse(database_url).path.strip("/"):
-   db = connect(database_url)
-else:
+   database_url = getenv("DATABASE_URL")
+   if database_url and "://" in database_url and urlparse(database_url).path.strip("/"):
+      configured_db = connect(database_url)
+      db.init(configured_db.database, **configured_db.connect_params)
+      return
+
    postgres_db_name = getenv("POSTGRES_DB_NAME") or getenv("POSTGRES_DB") or getenv("PGDATABASE")
    postgres_host = getenv("POSTGRES_DB_HOST") or getenv("POSTGRES_HOST") or getenv("PGHOST")
    postgres_port = getenv("POSTGRES_DB_PORT") or getenv("POSTGRES_PORT") or getenv("PGPORT")
@@ -49,12 +55,13 @@ else:
          "Database configuration is missing. Set a valid DATABASE_URL or these variables: "
          + ", ".join(missing_postgres_vars)
       )
-   db = PostgresqlDatabase(
-       postgres_db_name,
-       host=postgres_host,
-       port=postgres_port,
-       user=postgres_user,
-       password=postgres_password,
+
+   db.init(
+      postgres_db_name,
+      host=postgres_host,
+      port=postgres_port,
+      user=postgres_user,
+      password=postgres_password,
    )
 
 class Users(Model):
@@ -205,6 +212,7 @@ def initialize_database(require_vector: bool = False):
             _initialize_vector_store(require_vector=True)
          return
 
+      configure_database()
       db.connect(reuse_if_open=True)
       db.create_tables([
          Users,
