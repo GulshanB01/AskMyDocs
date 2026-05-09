@@ -1,3 +1,4 @@
+import traceback
 from os import getenv
 from datetime import datetime
 from threading import Lock
@@ -18,6 +19,7 @@ load_dotenv()  # add this before anything else
 
 _database_initialized = False
 _database_lock = Lock()
+_vector_initialized = False
 
 database_url = getenv("DATABASE_URL")
 
@@ -174,19 +176,30 @@ def _assign_orphan_rows_to_admin():
    Documents.update(user_id=admin_user.id).where(Documents.user_id.is_null(True)).execute()
    Tags.update(user_id=admin_user.id).where(Tags.user_id.is_null(True)).execute()
 
-def initialize_database():
-   global _database_initialized
+def initialize_database(require_vector: bool = False):
+   global _database_initialized, _vector_initialized
    if _database_initialized:
+      if require_vector and not _vector_initialized:
+         _initialize_vector_store(require_vector=True)
       return
 
    with _database_lock:
       if _database_initialized:
+         if require_vector and not _vector_initialized:
+            _initialize_vector_store(require_vector=True)
          return
 
       db.connect(reuse_if_open=True)
-      db.execute_sql("CREATE EXTENSION IF NOT EXISTS vector")
-
-      db.create_tables([Users])
+      db.create_tables([
+         Users,
+         Documents,
+         Tags,
+         DocumentTags,
+         DocumentProcessingJobs,
+         ChatMessages,
+         QuestionUsage,
+         ApiUsage,
+      ])
 
       if _table_exists("documents"):
          _ensure_column("documents", "user_id", "INTEGER REFERENCES users(id) ON DELETE CASCADE")
@@ -195,17 +208,23 @@ def initialize_database():
       if _table_exists("users"):
          _ensure_column("users", "is_admin", "BOOLEAN DEFAULT FALSE")
 
-      db.create_tables([
-         Documents,
-         Tags,
-         DocumentTags,
-         DocumentInformationChunks,
-         DocumentProcessingJobs,
-         ChatMessages,
-         QuestionUsage,
-         ApiUsage,
-      ])
-
       _ensure_first_admin()
       _assign_orphan_rows_to_admin()
       _database_initialized = True
+      _initialize_vector_store(require_vector=require_vector)
+
+def _initialize_vector_store(require_vector: bool = False):
+   global _vector_initialized
+   if _vector_initialized:
+      return
+
+   try:
+      db.connect(reuse_if_open=True)
+      db.execute_sql("CREATE EXTENSION IF NOT EXISTS vector")
+      db.create_tables([DocumentInformationChunks])
+      _vector_initialized = True
+   except Exception:
+      print("Could not initialize pgvector-backed document chunk storage.")
+      traceback.print_exc()
+      if require_vector:
+         raise

@@ -10,7 +10,7 @@ from backend.schemas import ChatAskRequest, ChatAskResponse, ChatMessageResponse
 from backend.security import get_current_api_user
 from backend.services.constants import RESPOND_TO_MESSAGE_SYSTEM_PROMPT
 from backend.services.cost_tracking import record_llm_usage
-from backend.db import ChatMessages, DocumentInformationChunks, Documents, Users
+from backend.db import ChatMessages, DocumentInformationChunks, Documents, Users, initialize_database
 from backend.services.embeddings import get_embedding
 from backend.services.evaluation import evaluate_groundedness
 from backend.services.openai_client import openai_client
@@ -32,6 +32,7 @@ def serialize_message(row: ChatMessages) -> ChatMessageResponse:
 
 
 def get_related_chunks(user_id: int, question: str, document_id: Optional[int]) -> List[str]:
+    initialize_database(require_vector=True)
     query_embedding = get_embedding(question)
     base_query = (
         DocumentInformationChunks.select(DocumentInformationChunks.chunk)

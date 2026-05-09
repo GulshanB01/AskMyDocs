@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from backend.services.constants import CREATE_FACT_CHUNKS_SYSTEM_PROMPT, GET_MATCHING_TAGS_SYSTEM_PROMPT
 from backend.services.cost_tracking import record_llm_usage
-from backend.db import DocumentInformationChunks, DocumentTags, Documents, Tags, db
+from backend.db import DocumentInformationChunks, DocumentTags, Documents, Tags, db, initialize_database
 from backend.services.embeddings import get_embedding
 from backend.services.openai_client import openai_client
 from backend.services.utils import find
@@ -165,6 +165,7 @@ def upload_document_sync(
     progress_callback: Optional[Callable[[int, str], None]] = None,
     document_processing_job_id: Optional[int] = None,
 ):
+    initialize_database(require_vector=True)
     progress_callback = progress_callback or (lambda progress, message: None)
     progress_callback(5, "Parsing PDF")
     parsed_pdf = pdftotext.PDF(BytesIO(pdf_file))
