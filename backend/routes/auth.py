@@ -9,6 +9,7 @@ from backend.security import (
     create_access_token,
     get_current_api_user,
     hash_password,
+    is_configured_admin,
     normalize_email,
 )
 from backend.db import Users, initialize_database
@@ -32,7 +33,7 @@ def signup(payload: SignupRequest):
                 detail="An account with this email already exists.",
             )
 
-        should_be_admin = Users.select().count() == 0
+        should_be_admin = Users.select().count() == 0 or is_configured_admin(email)
         user = Users.create(
             email=email,
             password_hash=hash_password(payload.password),

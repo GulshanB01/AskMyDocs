@@ -14,12 +14,28 @@ from backend.db import Users, initialize_database
 
 TOKEN_SECRET_KEY = os.getenv("TOKEN_SECRET_KEY", "dev-only-change-this-secret")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
+ADMIN_EMAILS = {
+    email.strip().lower()
+    for email in os.getenv("ADMIN_EMAILS", "").split(",")
+    if email.strip()
+}
 
 bearer_scheme = HTTPBearer()
 
 
 def normalize_email(email: str) -> str:
     return email.strip().lower()
+
+
+def is_configured_admin(email: str) -> bool:
+    return normalize_email(email) in ADMIN_EMAILS
+
+
+def apply_configured_admin(user: Users) -> Users:
+    if is_configured_admin(user.email) and not user.is_admin:
+        user.is_admin = True
+        user.save()
+    return user
 
 
 def hash_password(password: str, salt: Optional[bytes] = None) -> str:
@@ -55,7 +71,7 @@ def authenticate_user(email: str, password: str) -> Optional[Users]:
     user = Users.get_or_none(Users.email == normalize_email(email))
     if not user or not verify_password(password, user.password_hash):
         return None
-    return user
+    return apply_configured_admin(user)
 
 
 def get_current_api_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> Users:
@@ -79,7 +95,7 @@ def get_current_api_user(credentials: HTTPAuthorizationCredentials = Depends(bea
     user = Users.get_or_none(Users.id == int(user_id))
     if not user:
         raise credentials_error
-    return user
+    return apply_configured_admin(user)
 
 
 def decode_access_token(token: str) -> dict:
