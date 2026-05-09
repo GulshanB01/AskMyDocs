@@ -2,20 +2,26 @@ import json
 import os
 import uuid
 from typing import Any, Dict, Optional
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 import streamlit as st
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+DEFAULT_API_BASE_URL = "https://askmydocs-production-ed37.up.railway.app"
 
 
 def _api_base_url() -> str:
     if os.getenv("ASKMYDOCS_API_URL"):
-        return os.getenv("ASKMYDOCS_API_URL", "")
+        return os.getenv("ASKMYDOCS_API_URL", "").rstrip("/")
     try:
-        return st.secrets.get("ASKMYDOCS_API_URL", "http://127.0.0.1:8000")
+        return st.secrets.get("ASKMYDOCS_API_URL", DEFAULT_API_BASE_URL).rstrip("/")
     except Exception:
-        return "http://127.0.0.1:8000"
+        return DEFAULT_API_BASE_URL
 
 
 class ApiClientError(Exception):
@@ -86,3 +92,10 @@ def _request(
         except json.JSONDecodeError:
             pass
         raise ApiClientError(str(detail))
+    except URLError as exc:
+        api_base_url = _api_base_url()
+        raise ApiClientError(
+            "Could not reach the AskMyDocs API. "
+            f"Current API URL: {api_base_url}. "
+            "If this is Streamlit Cloud, set ASKMYDOCS_API_URL to your deployed backend URL."
+        ) from exc

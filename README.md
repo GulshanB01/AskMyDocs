@@ -128,11 +128,13 @@ Required backend environment variables:
 - `LLM_OUTPUT_PRICE_PER_1M_TOKENS`
 
 After deployment:
+
 - Backend health check: `https://askmydocs-production-ed37.up.railway.app/health`
 - Backend API docs: `https://askmydocs-production-ed37.up.railway.app/docs`
 - Frontend app: `https://askmydocs-lzuugs7svivffynzr6uhfv.streamlit.app`
 
 Required frontend environment variable:
+
 - `ASKMYDOCS_API_URL="https://askmydocs-production-ed37.up.railway.app"`
 
 The backend creates the `vector` extension with `CREATE EXTENSION IF NOT EXISTS vector`. If the selected Railway Postgres image does not support pgvector, use a pgvector-capable Postgres provider such as Neon or Supabase for the database URL.
