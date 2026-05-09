@@ -2,7 +2,6 @@ import traceback
 from os import getenv
 from datetime import datetime
 from threading import Lock
-from urllib.parse import urlparse
 from pgvector.peewee import VectorField
 from peewee import (
    PostgresqlDatabase,
@@ -14,6 +13,7 @@ from peewee import (
    FloatField,
    BooleanField,
 )
+from playhouse.db_url import connect
 from dotenv import load_dotenv
 load_dotenv()  # add this before anything else
 
@@ -24,15 +24,21 @@ _vector_initialized = False
 database_url = getenv("DATABASE_URL")
 
 if database_url:
-   parsed_database_url = urlparse(database_url)
-   db = PostgresqlDatabase(
-      parsed_database_url.path.lstrip("/"),
-      host=parsed_database_url.hostname,
-      port=parsed_database_url.port,
-      user=parsed_database_url.username,
-      password=parsed_database_url.password,
-   )
+   db = connect(database_url)
 else:
+   required_postgres_vars = [
+      "POSTGRES_DB_NAME",
+      "POSTGRES_DB_HOST",
+      "POSTGRES_DB_PORT",
+      "POSTGRES_DB_USER",
+      "POSTGRES_DB_PASSWORD",
+   ]
+   missing_postgres_vars = [name for name in required_postgres_vars if not getenv(name)]
+   if missing_postgres_vars:
+      raise RuntimeError(
+         "Database configuration is missing. Set DATABASE_URL or these variables: "
+         + ", ".join(missing_postgres_vars)
+      )
    db = PostgresqlDatabase(
        getenv("POSTGRES_DB_NAME"),
        host=getenv("POSTGRES_DB_HOST"),

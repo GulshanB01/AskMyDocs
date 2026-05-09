@@ -20,6 +20,17 @@ def health_check():
     }
 
 
+@app.get("/debug/database", tags=["System"])
+def database_debug():
+    from backend.db import db
+
+    return {
+        "database_class": type(db).__name__,
+        "is_closed": db.is_closed(),
+        "database_name": db.database,
+    }
+
+
 @app.on_event("startup")
 def start_database_initialization():
     from backend.db import initialize_database
