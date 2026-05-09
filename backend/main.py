@@ -1,7 +1,5 @@
 from datetime import datetime
-from os import getenv
 from threading import Thread
-from urllib.parse import urlparse
 
 from fastapi import FastAPI
 
@@ -19,53 +17,6 @@ def health_check():
         "status": "ok",
         "service": "askmydocs-api",
         "timestamp": datetime.utcnow().isoformat() + "Z",
-    }
-
-
-@app.get("/debug/database", tags=["System"])
-def database_debug():
-    from backend.db import configure_database, db
-
-    database_url = getenv("DATABASE_URL", "")
-    parsed_database_url = urlparse(database_url) if database_url else None
-    configuration_error = None
-    try:
-        configure_database()
-    except Exception as exc:
-        configuration_error = f"{type(exc).__name__}: {exc}"
-
-    return {
-        "database_class": type(db).__name__,
-        "is_closed": db.is_closed(),
-        "database_name": db.database,
-        "configuration_error": configuration_error,
-        "has_database_url": bool(getenv("DATABASE_URL")),
-        "database_url_looks_valid": "://" in getenv("DATABASE_URL", ""),
-        "database_url_has_name": bool(parsed_database_url and parsed_database_url.path.strip("/")),
-        "has_pg_vars": all(
-            getenv(name)
-            for name in ["PGDATABASE", "PGHOST", "PGPORT", "PGUSER", "PGPASSWORD"]
-        ),
-        "has_postgres_vars": all(
-            getenv(name)
-            for name in [
-                "POSTGRES_DB_NAME",
-                "POSTGRES_DB_HOST",
-                "POSTGRES_DB_PORT",
-                "POSTGRES_DB_USER",
-                "POSTGRES_DB_PASSWORD",
-            ]
-        ),
-        "has_standard_postgres_vars": all(
-            getenv(name)
-            for name in [
-                "POSTGRES_DB",
-                "POSTGRES_HOST",
-                "POSTGRES_PORT",
-                "POSTGRES_USER",
-                "POSTGRES_PASSWORD",
-            ]
-        ),
     }
 
 
