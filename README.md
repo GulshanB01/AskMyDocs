@@ -7,8 +7,6 @@ The project demonstrates a production-style RAG workflow rather than a notebook 
 ## Live Demo
 
 - Streamlit app: https://gulshanb01-askmydocs-main-aentas.streamlit.app/
-- API docs: https://askmydocs-production-ed37.up.railway.app/docs
-- API health: https://askmydocs-production-ed37.up.railway.app/health
 
 ## What It Shows
 
